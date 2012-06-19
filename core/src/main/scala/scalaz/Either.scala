@@ -90,7 +90,7 @@ sealed trait \/[+A, +B] {
   def getOrElse[BB >: B](x: => BB): BB =
     toOption getOrElse x
 
-  def |[BB >: B](x: => BB): BB =
+  def ?[BB >: B](x: => BB): BB =
     getOrElse(x)
 
   def valueOr[BB >: B](x: A => BB): BB =
@@ -98,9 +98,30 @@ sealed trait \/[+A, +B] {
       case -\/(a) => x(a)
       case \/-(b) => b
     }
+
+  def orElse[AA >: A, BB >: B](x: => AA \/ BB): AA \/ BB =
+    this match {
+      case -\/(a) => x
+      case \/-(_) => this
+    }
+
+  def |[AA >: A, BB >: B](x: => AA \/ BB): AA \/ BB =
+    orElse(x)
+
+  def ++[AA >: A, BB >: B](x: => AA \/ BB)(implicit M: Monoid[B]): AA \/ BB =
+    this match {
+      case -\/(a) => x
+      case \/-(b) => this
+    }
 }
 case class -\/[+A](a: A) extends (A \/ Nothing)
 case class \/-[+B](b: B) extends (Nothing \/ B)
+
+object \/ {
+  // equal, order, semigroup, monoid, show
+  // monad, cozip, traverse
+  // bifunctor, bitraverse
+}
 
 sealed trait \\/[+A, +B] {
   val right: (A \/ B)
@@ -177,7 +198,7 @@ sealed trait \\/[+A, +B] {
   def getOrElse[AA >: A](x: => AA): AA =
     toOption getOrElse x
 
-  def |[AA >: A](x: => AA): AA =
+  def ?[AA >: A](x: => AA): AA =
     getOrElse(x)
 
   def valueOr[AA >: A](x: B => AA): AA =
