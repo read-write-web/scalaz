@@ -229,7 +229,7 @@ trait EitherTFunctions {
     val run = a
   }
 
-  type \/[A, B] =
+  type \-/[A, B] =
   EitherT[Id, A, B]
 
   def leftT[F[_], A, B](a: A)(implicit F: Pointed[F]): EitherT[F, A, B] =
@@ -238,7 +238,7 @@ trait EitherTFunctions {
   def rightT[F[_], A, B](b: B)(implicit F: Pointed[F]): EitherT[F, A, B] =
     eitherT(F.point(Right(b): Either[A, B]))
 
-  def fromEither[F[_], A, B](e: A \/ B)(implicit F: Pointed[F]): EitherT[F, A, B] =
+  def fromEither[F[_], A, B](e: A \-/ B)(implicit F: Pointed[F]): EitherT[F, A, B] =
     eitherT(F.point(e.run))
 
   import Isomorphism.{IsoFunctorTemplate, IsoBifunctorTemplate}
