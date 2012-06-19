@@ -247,7 +247,10 @@ trait Instances3_\/ {
 }
 
 sealed trait \\/[+A, +B] {
-  val right: (A \/ B)
+  val right: A \/ B
+
+  def unary_+ : A \/ B=
+    right
 
   def isLeft: Boolean =
     right.isLeft
