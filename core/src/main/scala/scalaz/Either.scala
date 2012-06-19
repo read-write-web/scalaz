@@ -99,6 +99,12 @@ sealed trait \/[+A, +B] {
       case \/-(b) => Some(b)
     }
 
+  def toEither: Either[A, B] =
+    this match {
+      case -\/(a) => Left(a)
+      case \/-(b) => Right(b)
+    }
+
   def getOrElse[BB >: B](x: => BB): BB =
     toOption getOrElse x
 
@@ -331,6 +337,12 @@ sealed trait \\/[+A, +B] {
     right match {
       case -\/(a) => Some(a)
       case \/-(_) => None
+    }
+
+  def toEither: Either[B, A] =
+    right match {
+      case -\/(a) => Right(a)
+      case \/-(b) => Left(b)
     }
 
   def getOrElse[AA >: A](x: => AA): AA =
