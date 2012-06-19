@@ -384,6 +384,16 @@ sealed trait \\/[+A, +B] {
 
 object \\/ extends Instances_\\/
 
+object \\/- {
+  def apply[B](b: B): B \\/ Nothing =
+    \\/-(b).left
+}
+
+object -\\/ {
+  def apply[A](a: A): Nothing \\/ A =
+    -\\/(a).left
+}
+
 trait Instances_\\/ extends Instances0_\\/
 
 trait Instances0_\\/ extends Instances1_\/ {
