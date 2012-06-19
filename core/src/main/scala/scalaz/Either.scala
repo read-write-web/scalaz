@@ -159,6 +159,12 @@ sealed trait \/[+A, +B] {
       }
     }
 
+  def show[AA >: A, BB >: B](implicit SA: Show[AA], SB: Show[BB]): List[Char] = 
+    this match {
+      case -\/(a) => List('-', '\\', '/', '(') ::: SA.show(a) ::: List(')')
+      case \/-(b) => List('\\', '/', '-', '(') ::: SB.show(b) ::: List(')')
+    }
+
 }
 case class -\/[+A](a: A) extends (A \/ Nothing)
 case class \/-[+B](b: B) extends (Nothing \/ B)
@@ -194,10 +200,7 @@ trait Instances1_\/ extends Instances2_\/ {
     }
 
   implicit def Show_\/[A: Show, B: Show]: Show[A \/ B] =
-    Show.show {
-      case -\/(a) => List('-', '\\', '/', '(') ::: Show[A].show(a) ::: List(')')
-      case \/-(b) => List('\\', '/', '-', '(') ::: Show[B].show(b) ::: List(')')
-    }
+    Show.show(_.show)
 
   implicit def Semigroup_\/[A, B: Semigroup]: Semigroup[A \/ B] =
     new Semigroup[A \/ B] {
@@ -392,6 +395,12 @@ sealed trait \\/[+A, +B] {
         case -\/(_) => Ordering.LT
       }
     }
+  
+  def show[AA >: A, BB >: B](implicit SA: Show[AA], SB: Show[BB]): List[Char] =
+    right match {
+      case -\/(a) => List('-', '\\', '\\', '/', '(') ::: SA.show(a) ::: List(')')
+      case \/-(b) => List('\\', '\\', '/', '-', '(') ::: SB.show(b) ::: List(')')
+    }
 }
 
 object \\/ extends Instances_\\/
@@ -432,10 +441,7 @@ trait Instances1_\\/ extends Instances2_\\/ {
     }
 
   implicit def Show_\\/[A: Show, B: Show]: Show[A \\/ B] =
-    Show.show(_.right match {
-      case -\/(a) => List('-', '\\', '\\', '/', '(') ::: Show[A].show(a) ::: List(')')
-      case \/-(b) => List('\\', '\\', '/', '-', '(') ::: Show[B].show(b) ::: List(')')
-    })
+    Show.show(_.show)
 
   implicit def Semigroup_\\/[A: Semigroup, B]: Semigroup[A \\/ B] =
     new Semigroup[A \\/ B] {
