@@ -342,11 +342,11 @@ sealed trait \\/[+A, +B] {
       case \/-(_) => None
     }
 
-  def toEither: Either[B, A] =
-    right match {
-      case -\/(a) => Right(a)
-      case \/-(b) => Left(b)
-    }
+  def toEither: Either.LeftProjection[A, B] =
+    (right match {
+      case -\/(a) => Left(a)
+      case \/-(b) => Right(b)
+    }).left
 
   def getOrElse[AA >: A](x: => AA): AA =
     toOption getOrElse x
