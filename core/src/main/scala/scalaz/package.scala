@@ -70,7 +70,7 @@
  *  - [[scalaz.StateT]] Computations that modify state.
  *  - [[scalaz.WriterT]] Computations that log a value
  *  - [[scalaz.OptionT]] Represents computations of type `F[Option[A]]`
- *  - [[scalaz.EitherT]] Represents computations of type `F[Either[A, B]]`
+ *  - [[scalaz.EitherT]] Represents computations of type `F[A \/ B]`
  */
 package object scalaz {
   import Id._
@@ -152,8 +152,6 @@ package object scalaz {
    * Useful for accumulating errors through the corresponding [[scalaz.Applicative]] instance.
    */
   type ValidationNEL[E, X] = Validation[NonEmptyList[E], X]
-  
-  type ValidationTNEL[M[_], E, X] = ValidationT[M, NonEmptyList[E], X]
 
   type FirstOption[A] = Option[A] @@ Tags.First
   type LastOption[A] = Option[A] @@ Tags.Last

@@ -203,11 +203,6 @@ trait BooleanOps extends Ops[Boolean] {
    */
   final def option[A](a: => A): Option[A] = b.option(self, a)
 
-  /**
-   * Returns the given argument in `lazySome` if this is `Left`, `Left` otherwise.
-   */
-  final def lazyOption[A](a: => A): LazyOption[A] = LazyOption.condLazyOption(self, a)
-
   trait ConditionalEither[A] {
     def or[B](b: => B): Either[A, B]
   }
