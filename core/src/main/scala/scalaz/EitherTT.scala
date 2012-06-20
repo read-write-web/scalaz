@@ -1,5 +1,15 @@
 package scalaz
 
+/**
+ * Represents a computation of type `F[Either[A, B]]`.
+ *
+ * Example:
+ * {{{
+ * val x: Option[Either[String, Int]] = Some(Right(1))
+ * EitherT(x).map(1+).run // Some(Right(2)
+ * }}}
+ *
+ */
 sealed trait EitherTT[F[+_], +A, +B] {
   val run: F[A \/ B]
 
@@ -96,9 +106,49 @@ sealed trait EitherTT[F[+_], +A, +B] {
     }))
 }
 
-object EitherTT {
+object EitherTT extends EitherTTInstances {
   def apply[F[+_], A, B](x: F[A \/ B]): EitherTT[F, A, B] =
     new EitherTT[F, A, B] {
       val run = x
+    }
+}
+
+trait EitherTTInstances extends EitherTTInstances0
+
+trait EitherTTInstances0 extends EitherTTInstances1 {
+  implicit def EitherTTTraverse[F[+_]: Traverse, A]: Traverse[({type λ[α] = EitherTT[F, A, α]})#λ] =
+    new Traverse[({type λ[α] = EitherTT[F, A, α]})#λ] {
+      def traverseImpl[G[+_]: Applicative, X, Y](fa: EitherTT[F, A, X])(f: X => G[Y]) =
+        fa traverse f
+    }
+
+  implicit def EitherTTMonad[F[+_]: Monad, A]: Monad[({type λ[α] = EitherTT[F, A, α]})#λ] =
+    new Monad[({type λ[α] = EitherTT[F, A, α]})#λ] {
+      def bind[X, Y](fa: EitherTT[F, A, X])(f: X => EitherTT[F, A, Y]): EitherTT[F, A, Y] = fa flatMap f
+      def point[X](x: => X) = EitherTT(implicitly[Monad[F]].point(\/-(x)))
+    }
+}
+
+trait EitherTTInstances1 extends EitherTTInstances2 {
+  implicit def EitherTTBitraverse[F[+_]: Traverse]: Bitraverse[({type λ[α, β] = EitherTT[F, α, β]})#λ] =
+    new Bitraverse[({type λ[α, β] = EitherTT[F, α, β]})#λ] {
+      def bitraverseImpl[G[+_] : Applicative, A, B, C, D](fab: EitherTT[F, A, B])
+                                                    (f: A => G[C], g: B => G[D]): G[EitherTT[F, C, D]] =
+        fab bitraverse (f ,g)
+    }
+}
+
+trait EitherTTInstances2 {
+  implicit def EitherTTMonadTrans[A]: MonadTrans[({type λ[α[+_], β] = EitherTT[α, A, β]})#λ] =
+    new MonadTrans[({type λ[α[+_], β] = EitherTT[α, A, β]})#λ] {
+      def hoist[F[+_], G[+_]](f: F ~> G)(implicit M: Monad[F]) = new (({type λ[α] = EitherTT[F, A, α]})#λ ~> ({type λ[α] = EitherTT[G, A, α]})#λ) {
+        def apply[B](mb: EitherTT[F, A, B]): EitherTT[G, A, B] = EitherTT(f.apply(mb.run))
+      }
+      def liftM[F[+_], B](mb: F[B])(implicit M: Monad[F]): EitherTT[F, A, B] = EitherTT(M.map(mb)(\/-(_)))
+      implicit def apply[F[+_] : Monad]: Monad[({type λ[α] = EitherTT[F, A, α]})#λ] =
+        new Monad[({type λ[α] = EitherTT[F, A, α]})#λ] {
+          def bind[X, Y](fa: EitherTT[F, A, X])(f: X => EitherTT[F, A, Y]): EitherTT[F, A, Y] = fa flatMap f
+          def point[X](x: => X) = EitherTT(implicitly[Monad[F]].point(\/-(x)))
+        }
     }
 }
