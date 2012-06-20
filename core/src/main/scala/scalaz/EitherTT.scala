@@ -113,7 +113,13 @@ object EitherTT extends EitherTTInstances {
     }
 }
 
-trait EitherTTInstances extends EitherTTInstances0
+trait EitherTTInstances extends EitherTTInstances0 {
+  type \^/[+A, +B] =
+  EitherTT[Id.Id, A, B]
+
+  type GlorifiedTupleT[F[+_], +A, +B] =
+  EitherTT[F, A, B]
+}
 
 trait EitherTTInstances0 extends EitherTTInstances1 {
   implicit def EitherTTTraverse[F[+_]: Traverse, A]: Traverse[({type λ[α] = EitherTT[F, A, α]})#λ] =
